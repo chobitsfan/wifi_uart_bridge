@@ -1,0 +1,2 @@
+#define SECRET_SSID "ASUS_e400"
+#define SECRET_PASS "e400e400"
