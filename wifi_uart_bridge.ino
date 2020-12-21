@@ -26,12 +26,13 @@ int keyIndex = 0;            // your network key Index number (needed only for W
 unsigned int localPort = 14550;      // local port to listen on
 
 uint8_t packetBuffer[1024]; //buffer to hold incoming packet
+uint8_t expectedSeq = 0;
 
 WiFiUDP Udp;
 
 void setup() {
   Serial.begin(9600);
-  Serial1.begin(115200);
+  Serial1.begin(57600);
 
   // check for the WiFi module:
   if (WiFi.status() == WL_NO_MODULE) {
@@ -69,7 +70,7 @@ void loop() {
   int packetSize = Udp.parsePacket();
   if (packetSize) {
     // read the packet into packetBufffer
-    Udp.read(packetBuffer, 1024);    
+    Udp.read(packetBuffer, 1024);
     Serial1.write(packetBuffer, packetSize);
   }
 
@@ -77,6 +78,12 @@ void loop() {
   mavlink_status_t status;
   while (Serial1.available() > 0) {
     if (mavlink_parse_char(0, Serial1.read(), &msg, &status)) {
+      if (msg.seq != expectedSeq) {
+        Serial.print(msg.seq);
+        Serial.print(" expect ");
+        Serial.println(expectedSeq);
+      }
+      if (msg.seq == 255) expectedSeq = 0; else expectedSeq = msg.seq + 1;
       packetSize = mavlink_msg_to_send_buffer(packetBuffer, &msg);
       Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
       Udp.write(packetBuffer, packetSize);
