@@ -25,14 +25,14 @@ int keyIndex = 0;            // your network key Index number (needed only for W
 
 unsigned int localPort = 14550;      // local port to listen on
 
-uint8_t packetBuffer[1024]; //buffer to hold incoming packet
+uint8_t packetBuffer[512]; //buffer to hold incoming packet
 uint8_t expectedSeq = 0;
 
 WiFiUDP Udp;
 
 void setup() {
   Serial.begin(9600);
-  Serial1.begin(57600);
+  Serial1.begin(115200);
 
   // check for the WiFi module:
   if (WiFi.status() == WL_NO_MODULE) {
@@ -46,8 +46,9 @@ void setup() {
     Serial.println("Please upgrade the firmware");
   }
 
-  IPAddress ip(192, 168, 0, 10);
+  IPAddress ip(192, 168, 0, 3);
   WiFi.config(ip);
+  WiFi.noLowPowerMode();
 
   // attempt to connect to Wifi network:
   while (status != WL_CONNECTED) {
@@ -70,7 +71,7 @@ void loop() {
   int packetSize = Udp.parsePacket();
   if (packetSize) {
     // read the packet into packetBufffer
-    Udp.read(packetBuffer, 1024);
+    Udp.read(packetBuffer, 512);
     Serial1.write(packetBuffer, packetSize);
   }
 
