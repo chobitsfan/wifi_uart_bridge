@@ -25,10 +25,9 @@ int keyIndex = 0;            // your network key Index number (needed only for W
 
 unsigned int localPort = 14550;      // local port to listen on
 
-uint8_t packetBuffer[512]; //buffer to hold incoming packet
+#define PKT_BUF_SZ 512
+uint8_t packetBuffer[PKT_BUF_SZ]; //buffer to hold incoming packet
 uint8_t expectedSeq = 0;
-unsigned long latest_uart_ms = 0;
-int pending_pkt_sz = 0;
 
 WiFiUDP Udp;
 
@@ -74,18 +73,8 @@ void loop() {
   int packetSize = Udp.parsePacket();
   if (packetSize) {
     // read the packet into packetBufffer
-    Udp.read(packetBuffer, 512);
-    if (cur - latest_uart_ms > 20) { //extNavIntervalMin_ms = 20
-      latest_uart_ms = cur;
-      pending_pkt_sz = 0;
-      Serial1.write(packetBuffer, packetSize);
-    } else {
-      pending_pkt_sz = packetSize;
-    }
-  } else if (pending_pkt_sz > 0 && (cur - latest_uart_ms) > 20) {
-      latest_uart_ms = cur;      
-      Serial1.write(packetBuffer, pending_pkt_sz);
-      pending_pkt_sz = 0;
+    Udp.read(packetBuffer, PKT_BUF_SZ);
+    Serial1.write(packetBuffer, packetSize);
   }
 
   mavlink_message_t msg;
