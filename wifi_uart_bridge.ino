@@ -33,7 +33,7 @@ WiFiUDP Udp;
 
 void setup() {
   Serial.begin(9600);
-  Serial1.begin(921600);
+  Serial1.begin(115200);
 
   // check for the WiFi module:
   if (WiFi.status() == WL_NO_MODULE) {
