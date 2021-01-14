@@ -14,7 +14,7 @@
 #include <SPI.h>
 #include <WiFiNINA.h>
 #include <WiFiUdp.h>
-#include "standard/mavlink.h"
+#include "ardupilotmega/mavlink.h"
 
 int status = WL_IDLE_STATUS;
 #include "arduino_secrets.h" 
