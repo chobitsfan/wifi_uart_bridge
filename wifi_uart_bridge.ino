@@ -28,6 +28,7 @@ unsigned int localPort = 14550;      // local port to listen on
 #define PKT_BUF_SZ 512
 uint8_t packetBuffer[PKT_BUF_SZ]; //buffer to hold incoming packet
 uint8_t expectedSeq = 0;
+bool got_client = false;
 
 WiFiUDP Udp;
 
@@ -47,7 +48,8 @@ void setup() {
     Serial.println("Please upgrade the firmware");
   }
 
-  IPAddress ip(192, 168, 0, 2);
+  IPAddress ip;
+  ip.fromString(MY_IP_ADDR);
   WiFi.config(ip);
   WiFi.noLowPowerMode();
 
@@ -72,6 +74,7 @@ void loop() {
   // if there's data available, read a packet
   int packetSize = Udp.parsePacket();
   if (packetSize) {
+    got_client = true;
     // read the packet into packetBufffer
     Udp.read(packetBuffer, PKT_BUF_SZ);
     Serial1.write(packetBuffer, packetSize);
@@ -87,10 +90,12 @@ void loop() {
         Serial.println(expectedSeq);
       }
       if (msg.seq == 255) expectedSeq = 0; else expectedSeq = msg.seq + 1;
-      packetSize = mavlink_msg_to_send_buffer(packetBuffer, &msg);
-      Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
-      Udp.write(packetBuffer, packetSize);
-      Udp.endPacket();
+      if (got_client) {
+        packetSize = mavlink_msg_to_send_buffer(packetBuffer, &msg);
+        Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+        Udp.write(packetBuffer, packetSize);
+        Udp.endPacket();
+      }
     }
   }
 }

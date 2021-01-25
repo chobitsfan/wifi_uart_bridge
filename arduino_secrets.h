@@ -1,2 +1,3 @@
 #define SECRET_SSID "ASUS_e400"
 #define SECRET_PASS "e400e400"
+#define MY_IP_ADDR "192.168.0.1"
